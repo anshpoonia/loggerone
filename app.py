@@ -15,19 +15,21 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 allowable_gap = 1.0
 
 
-def check(req):
-    rid = req.json.get("location")
+def check(rid):
     timestamp = time()
 
     doc = LOG.find_one({"_id": rid})
     if isinstance(doc, dict):
         if timestamp - doc["timestamp"] < allowable_gap:
+            LOG.update_one({"_id": rid}, {"$inc": {"reject": 1}})
             return False
-        LOG.update_one({"_id": rid}, {"$set": {"timestamp": timestamp}})
+        LOG.update_one({"_id": rid}, {"$set": {"timestamp": timestamp}, "$inc": {"success": 1}})
         return True
     LOG.insert_one({
         "_id": rid,
-        "timestamp": timestamp
+        "timestamp": timestamp,
+        "success": 1,
+        "reject": 0
     })
     return True
 
@@ -40,7 +42,8 @@ def home_handler():
 @app.route('/request', methods=["POST"])
 @cross_origin()
 def request_handler():
-    if check(request):
+    rid = request.json.get("location")
+    if check(rid):
         return jsonify({"code": "OK"})
 
     res = jsonify({"code": "Rejected"})
