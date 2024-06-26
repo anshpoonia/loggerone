@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS, cross_origin
 from time import time
 from pymongo.mongo_client import MongoClient
@@ -41,8 +41,8 @@ def home_handler():
 @cross_origin()
 def request_handler():
     if check(request):
-        return "OK"
-    return "Rejected"
+        return jsonify({"code": "OK"})
+    return jsonify({"code": "Rejected"})
 
 
 @app.route('/set', methods=["POST"])
@@ -51,9 +51,9 @@ def time_set_handler():
     try:
         global allowable_gap
         allowable_gap = int(request.json.get("time")) / 1000.0
-        return "OK"
+        return jsonify({"code": "OK"})
     except ValueError:
-        return "Incorrect value"
+        return jsonify({"code": "Incorrect value"})
 
 
 if __name__ == "__main__":
