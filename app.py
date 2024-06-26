@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, abort
 from flask_cors import CORS, cross_origin
 from time import time
 from pymongo.mongo_client import MongoClient
@@ -42,7 +42,10 @@ def home_handler():
 def request_handler():
     if check(request):
         return jsonify({"code": "OK"})
-    return jsonify({"code": "Rejected"})
+
+    res = jsonify({"code": "Rejected"})
+    res.status = 500
+    return abort(res)
 
 
 @app.route('/set', methods=["POST"])
