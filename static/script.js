@@ -40,7 +40,7 @@ function send(id, num)
         },
         body: JSON.stringify({
             "number": num,
-            "id": id,
+            "location": id,
         })
     })
         .then(res => res.text())
